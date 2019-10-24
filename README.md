@@ -1,7 +1,7 @@
 # IlliniFlow
 
 A C++ library for Navier-Stokes problem with Arbitrary Lagrange Eulerian method using FEniCS. Variational multiscale method is used in our code. The following article outline our code:
-
+```
 @article{zhu2019moving,
   title={A moving-domain CFD solver in FEniCS with applications to tidal turbine simulations in turbulent flows},
   author={Zhu, Qiming and Yan, Jinhui},
@@ -9,7 +9,7 @@ A C++ library for Navier-Stokes problem with Arbitrary Lagrange Eulerian method 
   year={2019},
   publisher={Elsevier}
 }
-
+```
 
 ### Installing
 
