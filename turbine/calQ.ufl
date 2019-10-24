@@ -1,0 +1,26 @@
+cell = tetrahedron
+V = VectorElement("Lagrange", cell, 1)
+Q = FiniteElement("Lagrange", cell, 1)
+
+w = TestFunction(Q)
+Pv= TrialFunction(Q)
+
+u = Coefficient(V)
+
+def S_tensor(u):
+	return 0.5*(grad(u)+grad(u).T)
+
+def O_tensor(u):
+	return 0.5*(grad(u)-grad(u).T)
+
+q_degree = 4
+ds = ds(metadata={'quadrature_degree': q_degree})
+
+S = S_tensor(u)
+O = O_tensor(u)
+S_norm2=tr(S*S.T)
+O_norm2=tr(O*O.T)
+Qcal   =0.5*(O_norm2-S_norm2)
+
+a = inner(w,Pv)*dx
+L = inner(w,Qcal)*dx

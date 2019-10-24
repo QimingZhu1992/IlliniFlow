@@ -1,0 +1,25 @@
+cell = tetrahedron
+V = VectorElement("Lagrange", cell, 1)
+Q = FiniteElement("Lagrange", cell, 1)
+
+u = Coefficient(V)
+p = Coefficient(Q)
+
+vu  = 1e-3
+n   = FacetNormal(cell)
+
+def epsilon(u):
+	return sym(nabla_grad(u))
+
+def sigma(u, p):
+	return 2*vu*epsilon(u) - p*Identity(len(u))
+
+q_degree = 4
+ds = ds(metadata={'quadrature_degree': q_degree})
+
+force=dot(sigma(u,p),n)
+fx = force[0]*ds(1)
+fy = force[1]*ds(1)
+fz = force[2]*ds(1)
+
+forms = [fx, fy, fz]

@@ -1,0 +1,91 @@
+cell = tetrahedron
+V = VectorElement("Lagrange", cell, 1)
+Q = FiniteElement("Lagrange", cell, 1)
+W = V * Q
+
+du       = TrialFunction(W)
+(v , q ) = TestFunctions(W)
+
+Wn	= Coefficient(W)
+du1, p1 = split(Wn)
+u0	= Coefficient(V)
+du0	= Coefficient(V)
+ur      = Coefficient(V)
+
+fx  = Coefficient(V)
+k   = Constant(cell)
+idt = Constant(cell)
+vu  = Constant(cell)
+n   = FacetNormal(cell)
+h   = MinCellEdgeLength(cell)
+
+def epsilon(u):
+	return sym(nabla_grad(u))
+
+def sigma(u, p):
+	return 2*vu*epsilon(u) - p*Identity(len(u))
+
+def sigmabc(u, p):
+	return 2*vu*epsilon(u) + p*Identity(len(u))
+
+q_degree = 4
+dx = dx(metadata={'quadrature_degree': q_degree})
+ds = ds(metadata={'quadrature_degree': q_degree})
+
+rhoc    = 0.5
+am	= 0.5*(3.0-rhoc)/(1.0+rhoc)
+af	= 1.0/(1.0+rhoc)
+gamma	= 0.5 + am -af
+gammab  = 1.0
+
+dum	=	du0	+	am*(du1-du0)
+um	=	u0	+	af*k*(du0+gamma*(du1-du0))
+
+Cb	  = 1.0
+vnorm     = sqrt(dot(u0-ur, u0-ur))
+tausupg   = ( (2.0*idt)**2 + (2.0*vnorm/h)**2 + (4.0*vu/h**2)**2 )**(-0.5)
+taupspg   = tausupg
+taulsic   = h*h/(12*tausupg)
+taubctan  = Cb*vu/h
+taubcnor  = Cb*vu/h
+
+F1	=	dot	 (          dum         ,	v	)*dx    \
+	+	dot	 ( dot(um-ur, nabla_grad(um)),  v       )*dx	\
+        +	dot	 (          q           ,  nabla_div(um))*dx    \
+        +	inner    (      sigma(um,p1)    ,   epsilon(v)  )*dx    \
+        -	dot	 (          fx          ,	v	)*dx
+
+resm    =	dum                                                     \
+        +	dot	 ( um - ur , nabla_grad(um))                    \
+        +	nabla_grad( p1 )                                        \
+        -	vu*nabla_div(  nabla_grad(um)  )                        \
+        -	fx
+
+resc    =	nabla_div   (um)
+
+F1	=	F1	+	tausupg    *    dot  ( dot(um-ur,nabla_grad(v)),           resm                      )*dx
+
+F1	=	F1	+	taulsic    *    nabla_div(v)                *              resc                       *dx
+
+F1	=	F1	+	taupspg    *    dot  (    nabla_grad(q)     ,              resm                      )*dx
+
+F1	=	F1	-                       inner(    nabla_grad(v)     ,  outer( tausupg*resm , tausupg*resm )  )*dx
+
+F1	=	F1	-	tausupg	   *    dot  (         v            ,  dot(   resm         , nabla_grad(um) ))*dx
+
+
+
+F1  	=   	F1  	-			dot  (         v    	    ,  dot( sigma(um,p1)   ,  	     n      ))*ds(1)
+
+F1	=	F1	-			dot  ( 	     um - ur 	    ,  dot( sigmabc(v ,q ) , 	     n 	    ))*ds(1)
+
+F1	=	F1	-   	0.5	   *	( dot( um - ur , n ) - abs(dot( um - ur , n ) ) )*dot(   v , um - ur )*ds(1)
+
+F1	=	F1	+	taubctan   *    dot  (  v - dot( v , n )*n  ,     (um - ur) - dot( um - ur , n )*n   )*ds(1)
+
+F1	=	F1	+	taubcnor   *	dot  (    v    ,     n    ) *  dot(   um  -   ur   ,         n       )*ds(1)
+
+F   =   F1
+J   =   derivative(F,Wn,du)
+
+forms = [F,J]
