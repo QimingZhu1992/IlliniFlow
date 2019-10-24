@@ -41,8 +41,8 @@ calQ.ufl  is formulation for calculating Q criterion by L2 Projection
 ```
 ## Authors
 
-Qiming Zhu, phd student in UIUC, 		qiming2@illinois.edu  
-Jinhui Yan, Assistant Professor in UIUC,	yjh@illinois.edu  
+Qiming Zhu, phd student in UIUC,          qiming2@illinois.edu  
+Jinhui Yan, Assistant Professor in UIUC,  yjh@illinois.edu  
 
 Feel free to send me email, if you have problems with using this code.  
 
