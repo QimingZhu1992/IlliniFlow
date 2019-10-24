@@ -5,7 +5,7 @@ A C++ library for Navier-Stokes problem with Arbitrary Lagrange Eulerian method 
 @article{zhu2019moving,
   title={A moving-domain CFD solver in FEniCS with applications to tidal turbine simulations in turbulent flows},
   author={Zhu, Qiming and Yan, Jinhui},
-  journal={Computers \& Mathematics with Applications},
+  journal={Computers and Mathematics with Applications},
   year={2019},
   publisher={Elsevier}
 }
